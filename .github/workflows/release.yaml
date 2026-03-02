@@ -32,6 +32,8 @@ jobs:
         images: ghcr.io/${{ github.repository }}
         tags: |
           type=semver,pattern={{version}}-arm64
+        flavor: |
+            latest=false
     - name: Build exporter image
       uses: docker/build-push-action@v5
       id: build
@@ -68,6 +70,8 @@ jobs:
         images: ghcr.io/${{ github.repository }}
         tags: |
           type=semver,pattern={{version}}-amd64
+        flavor: |
+            latest=false
     - name: Build exporter image
       uses: docker/build-push-action@v5
       id: build
@@ -110,6 +114,10 @@ jobs:
     - name: Build exporter manifest
       run: |
         docker buildx imagetools create \
-          --tag ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }} \
+          $(jq -cr '.tags | map("--tag " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          --annotation='index:org.opencontainers.image.description=${{ github.event.repository.description }}' \
+          --annotation='index:org.opencontainers.image.created=${{ steps.timestamp.outputs.timestamp }}' \
+          --annotation='index:org.opencontainers.image.url=${{ github.event.repository.url }}' \
+          --annotation='index:org.opencontainers.image.source=${{ github.event.repository.url }}'
           ghcr.io/${{ github.repository }}@${{ needs.build-exporter-image-arm64.outputs.digest }} \
           ghcr.io/${{ github.repository }}@${{ needs.build-exporter-image-amd64.outputs.digest }}
