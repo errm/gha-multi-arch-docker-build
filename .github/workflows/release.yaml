@@ -31,7 +31,6 @@ jobs:
       with:
         images: ghcr.io/${{ github.repository }}
         tags: |
-          type=raw,value=latest,enable=false
           type=semver,pattern={{version}}-arm64
     - name: Build exporter image
       uses: docker/build-push-action@v5
@@ -68,7 +67,6 @@ jobs:
       with:
         images: ghcr.io/${{ github.repository }}
         tags: |
-          type=raw,value=latest,enable=false
           type=semver,pattern={{version}}-amd64
     - name: Build exporter image
       uses: docker/build-push-action@v5
@@ -98,6 +96,17 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=semver,pattern={{version}}
+    - name: Get execution timestamp with RFC3339 format
+      id: timestamp
+      run: |
+        echo "timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_OUTPUT
     - name: Build exporter manifest
       run: |
         docker buildx imagetools create \
