@@ -111,5 +111,5 @@ jobs:
       run: |
         docker buildx imagetools create \
           --tag ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }} \
-          ghcr.io/${{ github.repository }}:${{ needs.build-exporter-image-arm64.outputs.digest }} \
-          ghcr.io/${{ github.repository }}:${{ needs.build-exporter-image-amd64.outputs.digest }}
+          ghcr.io/${{ github.repository }}@${{ needs.build-exporter-image-arm64.outputs.digest }} \
+          ghcr.io/${{ github.repository }}@${{ needs.build-exporter-image-amd64.outputs.digest }}
